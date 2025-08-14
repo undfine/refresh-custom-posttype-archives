@@ -41,17 +41,14 @@ add_action('admin_menu', function() {
 
 add_action('admin_enqueue_scripts', function($hook) {
     if ($hook !== 'settings_page_refresh-cpt-archives') return;
-    wp_enqueue_style(
-        'select2',
-        plugins_url('assets/css/select2.min.css', dirname(__DIR__) . '/refresh-custom-posttype-archives.php')
-    );
-    wp_enqueue_script(
-        'select2',
-        plugins_url('assets/js/select2.min.js', dirname(__DIR__) . '/refresh-custom-posttype-archives.php'),
-        ['jquery'],
-        null,
-        true
-    );
+
+    //Add the Select2 CSS file
+    wp_enqueue_style( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), '4.1.0-rc.0');
+
+    //Add the Select2 JavaScript file
+    wp_enqueue_script( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', 'jquery', '4.1.0-rc.0');
+    
+    // Your custom initialization
     wp_add_inline_script('select2', "
         jQuery(document).ready(function($){
             $('.refresh-cpt-archives-pages').select2({
@@ -87,7 +84,23 @@ function rcpta_settings_page() {
     ob_start();
     ?>
     <div class="wrap">
+        
         <h1>Refresh Custom Post-type Archives</h1>
+        <div class="rcpta-description" style="margin: 20px 0; padding: 15px; background: #fff; ">
+            <h2>About This Plugin</h2>
+            <p>This plugin automatically refreshes specified pages when posts of a selected custom post type is updated. This is particularly useful for:</p>
+            <ul style="list-style-type: disc; margin-left: 20px;">
+                <li>Clearing cache on archive pages when new posts are published</li>
+                <li>Updating landing pages that display custom post type content</li>
+                <li>Ensuring dynamic content stays fresh across your site</li>
+            </ul>
+            <p><strong>How to use:</strong></p>
+            <ol style="list-style-type: decimal; margin-left: 20px;">
+                <li>Select the page or pages that should be refreshed for each post type</li>
+                <li>Enable "Force Update" if regular cache clearing isn't sufficient</li>
+                <li>Save your changes</li>
+            </ol>
+        </div>
         <form method="post" action="options.php">
             <?php 
             settings_fields('refresh_cpt_archives_group');

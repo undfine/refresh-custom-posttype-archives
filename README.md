@@ -16,6 +16,8 @@ This plugin provides a settings interface where you can:
 - Cache-aware page list for better performance
 - Compatible with popular caching plugins
 - Force update option for stubborn caches
+- Selective refresh for individual post types
+- Automatic cleanup of deleted pages from settings
 
 ## Installation
 
@@ -36,6 +38,15 @@ This plugin provides a settings interface where you can:
 - PHP 7.4 or higher
 
 ## Changelog
+
+### 1.0.2
+- Removed Select2 included files to src from CDN
+
+### 1.0.1
+- Added selective refresh functionality
+- Improved cache handling
+- Added automatic cleanup of deleted pages
+- Fixed compatibility issues with some caching plugins
 
 ### 1.0
 - Initial release
