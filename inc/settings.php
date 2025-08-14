@@ -1,13 +1,31 @@
 <?php
+/**
+ * Settings page functionality for Refresh Custom Post-type Archives plugin
+ *
+ * @package refresh-custom-posttype-archives
+ * @since 1.0.0
+ */
 
 if(!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-
+/**
+ * Register plugin settings
+ */
 add_action('admin_init', function() {
-    register_setting('refresh_cpt_archives_group', 'refresh_cpt_archives');
-    register_setting('refresh_cpt_archives_group', 'refresh_cpt_archives_force_update');
+    register_setting(
+        'refresh_cpt_archives_group',
+        'refresh_cpt_archives',
+        array(
+            'type' => 'array',
+            'sanitize_callback' => 'rcpta_sanitize_settings'
+        )
+    );
+    register_setting('refresh_cpt_archives_group', 'refresh_cpt_archives_force_update', array(
+        'type' => 'boolean',
+        'default' => false
+    ));
 });
 
 add_action('admin_menu', function() {
@@ -16,9 +34,10 @@ add_action('admin_menu', function() {
         'Refresh CPT Archives',
         'manage_options',
         'refresh-cpt-archives',
-        'refresh_cpt_archives_settings_page'
+        'rcpta_settings_page'
     );
 });
+
 
 add_action('admin_enqueue_scripts', function($hook) {
     if ($hook !== 'settings_page_refresh-cpt-archives') return;
@@ -44,10 +63,24 @@ add_action('admin_enqueue_scripts', function($hook) {
     ");
 });
 
-function refresh_cpt_archives_settings_page() {
+/**
+ * Render the plugin settings page
+ *
+ * Displays a form with all public post types and allows selection of pages
+ * to be refreshed when posts of each type are updated.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function rcpta_settings_page() {
+    if (!current_user_can('manage_options')) {
+        wp_die(__('You do not have sufficient permissions to access this page.'));
+    }
+    
     $post_types = get_post_types(['public' => true], 'objects');
     unset($post_types['attachment']);
-    $pages = get_pages();
+    unset($post_types['page']);
+    $pages = rcpta_get_pages();
     $selected = get_option('refresh_cpt_archives', []);
     $force_update = get_option('refresh_cpt_archives_force_update', false);
 
@@ -56,7 +89,7 @@ function refresh_cpt_archives_settings_page() {
     <div class="wrap">
         <h1>Refresh Custom Post-type Archives</h1>
         <form method="post" action="options.php">
-            <?php
+            <?php 
             settings_fields('refresh_cpt_archives_group');
             do_settings_sections('refresh-cpt-archives');
             ?>
@@ -93,5 +126,62 @@ function refresh_cpt_archives_settings_page() {
     </div>
     <?php
     echo ob_get_clean();
+}
+
+/**
+ * Get all pages for the settings dropdown
+ * 
+ * Implements caching to improve performance when retrieving pages
+ * Cache is stored for one hour to balance freshness and performance
+ *
+ * @since 1.0.0
+ * @return array Array of WP_Post objects representing pages
+ */
+function rcpta_get_pages() {
+    $cache_key = 'rcpta_pages';
+    $pages = wp_cache_get($cache_key);
+    
+    if (false === $pages) {
+        $pages = get_pages();
+        wp_cache_set($cache_key, $pages, '', HOUR_IN_SECONDS);
+    }
+    
+    return $pages;
+}
+
+/**
+ * Sanitize and validate the plugin settings
+ *
+ * @param mixed $value The new option value
+ * @return array Sanitized option value
+ */
+function rcpta_sanitize_settings($value) {
+    if (!current_user_can('manage_options')) {
+        return array();
+    }
+    
+    // If empty, return empty array instead of null
+    if (empty($value)) {
+        return array();
+    }
+
+    // Ensure value is array
+    $value = (array)$value;
+    
+    // Sanitize each post type's settings
+    foreach ($value as $post_type => &$settings) {
+        // Sanitize the post type key
+        $post_type = sanitize_key($post_type);
+        
+        // Ensure page IDs are numeric
+        if (isset($settings['page'])) {
+            $settings['page'] = array_map('absint', (array)$settings['page']);
+            
+            // Remove any zero or invalid values
+            $settings['page'] = array_filter($settings['page']);
+        }
+    }
+    
+    return $value;
 }
 

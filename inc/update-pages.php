@@ -18,12 +18,12 @@ add_action('save_post', function($post_id, $post, $update) {
     $page_ids = isset($settings[$pt]['page']) ? array_filter((array)$settings[$pt]['page']) : [];
     
     // Allow filtering of page IDs before processing
-    $page_ids = apply_filters('refresh_cpt_archives__page_ids_'.$pt, $page_ids);
+    $page_ids = apply_filters('rcpta_page_ids_'.$pt, $page_ids);
 
     if (!empty($page_ids)) {
         foreach ($page_ids as $page_id) {
             if ($page_id) {
-                refresh_cpt_archives__clear_caches($page_id, $force_update);
+                rcpta_clear_caches($page_id, $force_update);
             }
         }
     }
@@ -34,24 +34,34 @@ add_action('save_post', function($post_id, $post, $update) {
  *
  * @param int $post_id The post ID to clear.
  */
-function refresh_cpt_archives__clear_caches( $post_id, $force_update = false ) {
+function rcpta_clear_caches($post_id, $force_update = false) {
+    if (!$post_id || !is_numeric($post_id)) {
+        error_log('Refresh CPT Archives: Invalid post ID provided');
+        return false;
+    }
 
     $post = get_post($post_id, ARRAY_A);
     if (empty($post) || !is_array($post)) {
-        return;
+        error_log('Refresh CPT Archives: Post not found - ' . $post_id);
+        return false;
     }
 
-    // Only force update if option is enabled
-    if ($force_update) {
-        wp_update_post($post);
-    } else {
-        // clear the cache using WordPress core function
-        if ( function_exists( 'clean_post_cache' )) {
-            clean_post_cache( $post_id );
-        } 
-        // Optionally check for WP Engine cache clearing functions
-        if( function_exists( 'wpe_clear_post_cache' )) {
-            wpe_clear_post_cache( $post_id );
-        } 
+    try {
+        if ($force_update) {
+            wp_update_post($post);
+        }
+        
+        if (function_exists('clean_post_cache')) {
+            clean_post_cache($post_id);
+        }
+        
+        if (function_exists('wpe_clear_post_cache')) {
+            wpe_clear_post_cache($post_id);
+        }
+        
+        return true;
+    } catch (Exception $e) {
+        error_log('Refresh CPT Archives: Error clearing cache - ' . $e->getMessage());
+        return false;
     }
 }
