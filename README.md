@@ -39,6 +39,9 @@ This plugin provides a settings interface where you can:
 
 ## Changelog
 
+### 1.0.3
+- Fixed cache clearing function for WP Engine, to use WpeCommon::purge_varnish_cache($post_id)
+
 ### 1.0.2
 - Removed Select2 included files to src from CDN
 

@@ -47,16 +47,18 @@ function rcpta_clear_caches($post_id, $force_update = false) {
     }
 
     try {
+        // If "Force Update" is set: simply update the post to trigger all cache refreshes, and update the post_modified time
         if ($force_update) {
             wp_update_post($post);
-        }
-        
-        if (function_exists('clean_post_cache')) {
+
+        // Else: Clear default WP object cache and other typical caching plugins if available
+        } elseif (function_exists('clean_post_cache')) {
             clean_post_cache($post_id);
-        }
-        
-        if (function_exists('wpe_clear_post_cache')) {
-            wpe_clear_post_cache($post_id);
+
+            // WP Engine: Clear single-page varnish cache if available
+            if ( class_exists( 'WpeCommon' ) && method_exists( 'WpeCommon', 'purge_varnish_cache' ) ) {
+                WpeCommon::purge_varnish_cache( $post_id );
+            }
         }
         
         return true;

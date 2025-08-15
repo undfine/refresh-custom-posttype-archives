@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Refresh Custom Post Type Archives
  * Description: Select post types and pages to clear cache when a post is updated.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Dustin Wight
  * Author URI: https://github.com/undfine
  * Text Domain: refresh-cpt-archives
