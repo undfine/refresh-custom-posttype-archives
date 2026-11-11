@@ -111,7 +111,7 @@ function rcpta_settings_page() {
                     <th scope="row">Force Update Page</th>
                     <td>
                         <input type="checkbox" name="refresh_cpt_archives_force_update" value="1" <?php checked($force_update, 1); ?>>
-                        If checked, the selected pages will be force updated, instead of just clearing the object cache.
+                        If checked, the selected pages' modified date is also bumped (in addition to clearing object, page and network caches).
                     </td>
                 </tr>
                 <?php foreach ($post_types as $pt): ?>

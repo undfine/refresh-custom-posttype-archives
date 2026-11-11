@@ -39,6 +39,13 @@ This plugin provides a settings interface where you can:
 
 ## Changelog
 
+### 1.0.4
+- Purges every detected cache layer (object, WP Engine, WP Rocket, W3 Total Cache, WP Super Cache, LiteSpeed, WP Fastest Cache, Cache Enabler, SiteGround, Cloudflare) in both modes
+- Triggers after the post is fully saved (`wp_after_insert_post`) and on permanent delete; only for publish-related changes
+- Pages are de-duplicated and purged once per request; fixed possible infinite loop
+- "Force Update" now only bumps the modified date (no content rewrite, no revisions), fixing possible backslash corruption
+- Added `rcpta_cache_layers`, `rcpta_purge_urls`, `rcpta_clear_object_cache` and `rcpta_after_clear` hooks
+
 ### 1.0.3
 - Fixed cache clearing function for WP Engine, to use WpeCommon::purge_varnish_cache($post_id)
 
