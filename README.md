@@ -40,7 +40,7 @@ This plugin provides a settings interface where you can:
 ## Changelog
 
 ### 1.0.4
-- Purges every detected cache layer (object, WP Engine, WP Rocket, W3 Total Cache, WP Super Cache, LiteSpeed, WP Fastest Cache, Cache Enabler, SiteGround, Cloudflare) in both modes
+- Purges every detected cache layer (object, Elementor element cache, WP Engine, WP Rocket, W3 Total Cache, WP Super Cache, LiteSpeed, WP Fastest Cache, Cache Enabler, SiteGround, Cloudflare) in both modes
 - Triggers after the post is fully saved (`wp_after_insert_post`) and on permanent delete; only for publish-related changes
 - Pages are de-duplicated and purged once per request; fixed possible infinite loop
 - "Force Update" now only bumps the modified date (no content rewrite, no revisions), fixing possible backslash corruption

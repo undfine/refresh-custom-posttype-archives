@@ -207,6 +207,13 @@ function rcpta_run_layer($fn) {
  */
 function rcpta_cache_layers() {
     $layers = [
+        // Elementor's element cache stores rendered HTML in this meta on the page
+        // (TTL 24h by default when the e_element_cache experiment is on). Loop/query
+        // widgets render into it, so it goes stale when posts change.
+        'elementor' => [
+            'detect' => function() { return defined('ELEMENTOR_VERSION'); },
+            'purge'  => function($id) { delete_post_meta($id, '_elementor_element_cache'); },
+        ],
         'wp_engine' => [
             'detect' => function() {
                 return class_exists('WpeCommon');
